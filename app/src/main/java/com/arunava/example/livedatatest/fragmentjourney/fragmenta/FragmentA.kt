@@ -17,6 +17,21 @@ class FragmentA : Fragment() {
 
     private lateinit var progressDialog: ProgressDialog
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        fragmentAViewModel = ViewModelProvider(this).get(FragmentAViewModel::class.java)
+
+        fragmentAViewModel.getSuccessLiveData().observe(this) {
+            progressDialog.dismiss()
+            val fragmentB = FragmentB()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.contentFrame, fragmentB)
+                .addToBackStack("B added")
+                .commit()
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -34,17 +49,6 @@ class FragmentA : Fragment() {
         view.findViewById<Button>(R.id.fragment_a_btn).setOnClickListener {
             progressDialog.show()
             fragmentAViewModel.makeApiCall()
-        }
-
-        fragmentAViewModel = ViewModelProvider(this).get(FragmentAViewModel::class.java)
-
-        fragmentAViewModel.getSuccessLiveData().observe(viewLifecycleOwner) {
-            progressDialog.dismiss()
-            val fragmentB = FragmentB()
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.contentFrame, fragmentB)
-                .addToBackStack("B added")
-                .commit()
         }
     }
 
